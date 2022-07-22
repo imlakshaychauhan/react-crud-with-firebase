@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "./firebase-config";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
 
 const App = () => {
   const [newName, setNewName] = useState("");
@@ -9,8 +9,14 @@ const App = () => {
   const userCollectionRef = collection(db, "users");
 
   const createUser = async () => {
-    await addDoc(userCollectionRef, {name: newName, age: newAge});
+    await addDoc(userCollectionRef, {name: newName, age: Number(newAge)});
   };
+
+  const updateUser = async (id, age) => {
+    const userDoc = doc(db, "users", id);
+    const newFields = { age: newAge };
+    await updateDoc(userDoc, newFields);
+  }
 
   useEffect(() => {
     const getUsers = async () => {
@@ -42,6 +48,10 @@ const App = () => {
             <h1>Name: {user.name}</h1>
             <h1>Age: {user.age}</h1>
             <h1>Gender: {user.Gender}</h1>
+            <input type="number" placeholder="Enter new Age Here" onChange={(e) => {
+                setNewAge(e.target.value);
+            }} />
+            <button onClick={() => {updateUser(user.id, user.age)}}>Change Age</button>
           </div>
         );
       })}
